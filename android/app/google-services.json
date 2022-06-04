@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "85149721733",
+    "project_id": "dm-shopping-2022",
+    "storage_bucket": "dm-shopping-2022.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:85149721733:android:e33bc89fdeb5e49c5e75ec",
+        "android_client_info": {
+          "package_name": "com.example.flutterfiredemo"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "85149721733-rlm4iubh70g593ht8b2clpmcp32rsf53.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA4pJn4y2AAweIQoIAdvOGXDLzZ_ImE8BM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "85149721733-rlm4iubh70g593ht8b2clpmcp32rsf53.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "85149721733-oevehm7jh8q5h09svjn1aifh7gu3i6d8.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.flutterfiredemo"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
