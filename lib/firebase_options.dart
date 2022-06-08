@@ -63,6 +63,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '85149721733',
     projectId: 'dm-shopping-2022',
     storageBucket: 'dm-shopping-2022.appspot.com',
+    androidClientId: '85149721733-f810u9uunc3mgs229p576lulg05tigkj.apps.googleusercontent.com',
     iosClientId: '85149721733-oevehm7jh8q5h09svjn1aifh7gu3i6d8.apps.googleusercontent.com',
     iosBundleId: 'com.example.flutterfiredemo',
   );
