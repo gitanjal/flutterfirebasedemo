@@ -129,7 +129,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   itemCount: listQueryDocumentSnapshot.length,
                   itemBuilder: (context,index){
                 QueryDocumentSnapshot document=listQueryDocumentSnapshot[index];
-                return Text(document['name']);
+                return ShoppingListItem(document: document);
               });
             }
 
@@ -143,6 +143,43 @@ class _MyHomePageState extends State<MyHomePage> {
         tooltip: 'Increment',
         child: const Icon(Icons.add),
       ), // This trailing comma makes auto-formatting nicer for build methods.
+    );
+  }
+}
+
+
+class ShoppingListItem extends StatefulWidget {
+  const ShoppingListItem({
+    Key? key,
+    required this.document,
+  }) : super(key: key);
+
+  final QueryDocumentSnapshot<Object?> document;
+
+  @override
+  State<ShoppingListItem> createState() => _ShoppingListItemState();
+}
+
+class _ShoppingListItemState extends State<ShoppingListItem> {
+  bool _purchased = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      onTap: () {
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('${widget.document['name']} is tapped')));
+      },
+      title: Text(widget.document['name']),
+      subtitle: Text(widget.document['quantity']),
+      trailing: Checkbox(
+        onChanged: (value) {
+          setState(() {
+            _purchased = value ?? false;
+          });
+        },
+        value: _purchased,
+      ),
     );
   }
 }
