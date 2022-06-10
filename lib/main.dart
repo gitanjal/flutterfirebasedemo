@@ -7,16 +7,14 @@ import 'package:flutterfiredemo/login_page.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'firebase_options.dart';
+import 'item_details.dart';
 
-void main() async{
-
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform
-  );
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
-  FlutterError.onError=FirebaseCrashlytics.instance.recordFlutterFatalError;
-  
+  FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
+
   runApp(const MyApp());
 }
 
@@ -27,43 +25,38 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // Try running your application with "flutter run". You'll see the
-        // application has a blue toolbar. Then, without quitting the app, try
-        // changing the primarySwatch below to Colors.green and then invoke
-        // "hot reload" (press "r" in the console where you ran "flutter run",
-        // or simply save your changes to "hot reload" in a Flutter IDE).
-        // Notice that the counter didn't reset back to zero; the application
-        // is not restarted.
-        primarySwatch: Colors.blue,
-      ),
-      home: StreamBuilder<User?>(
-        stream: FirebaseAuth.instance.authStateChanges(),
-        builder: (BuildContext context,AsyncSnapshot snapshot){
-          if(snapshot.hasError)
-          {
-            return Text(snapshot.error.toString());
-          }
-
-          if(snapshot.connectionState==ConnectionState.active)
-            {
-               if(snapshot.data==null)
-                 {
-                   return LoginPage();
-                 }
-               else
-                 {
-                   return MyHomePage(title: FirebaseAuth.instance.currentUser!.displayName!);
-                 }
+        title: 'Flutter Demo',
+        theme: ThemeData(
+          // This is the theme of your application.
+          //
+          // Try running your application with "flutter run". You'll see the
+          // application has a blue toolbar. Then, without quitting the app, try
+          // changing the primarySwatch below to Colors.green and then invoke
+          // "hot reload" (press "r" in the console where you ran "flutter run",
+          // or simply save your changes to "hot reload" in a Flutter IDE).
+          // Notice that the counter didn't reset back to zero; the application
+          // is not restarted.
+          primarySwatch: Colors.blue,
+        ),
+        home: StreamBuilder<User?>(
+          stream: FirebaseAuth.instance.authStateChanges(),
+          builder: (BuildContext context, AsyncSnapshot snapshot) {
+            if (snapshot.hasError) {
+              return Text(snapshot.error.toString());
             }
 
-          return Center(child: CircularProgressIndicator());
-        },
-      )
-    );
+            if (snapshot.connectionState == ConnectionState.active) {
+              if (snapshot.data == null) {
+                return LoginPage();
+              } else {
+                return MyHomePage(
+                    title: FirebaseAuth.instance.currentUser!.displayName!);
+              }
+            }
+
+            return Center(child: CircularProgressIndicator());
+          },
+        ));
   }
 }
 
@@ -79,66 +72,66 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
 
-  CollectionReference _referenceShoppingList= FirebaseFirestore.instance.collection('shopping_list');
+  CollectionReference _referenceShoppingList =
+      FirebaseFirestore.instance.collection('shopping_list');
   late Stream<QuerySnapshot> _streamShoppingItems;
 
   void _incrementCounter() {
     setState(() {
-
       _counter++;
     });
   }
 
-  initState(){
+  initState() {
     super.initState();
 
-    _streamShoppingItems=_referenceShoppingList.snapshots();
+    _streamShoppingItems = _referenceShoppingList.snapshots();
   }
 
   @override
   Widget build(BuildContext context) {
-
-
     return Scaffold(
       appBar: AppBar(
         // Here we take the value from the MyHomePage object that was created by
         // the App.build method, and use it to set our appbar title.
         title: Text(widget.title),
         actions: [
-          IconButton(onPressed: () async{
-            await GoogleSignIn().signOut();
-            FirebaseAuth.instance.signOut();
-          }, icon: Icon(Icons.power_settings_new))
+          IconButton(
+              onPressed: () async {
+                await GoogleSignIn().signOut();
+                FirebaseAuth.instance.signOut();
+              },
+              icon: Icon(Icons.power_settings_new))
         ],
       ),
       body: StreamBuilder<QuerySnapshot>(
         stream: _streamShoppingItems,
-        builder: (BuildContext context,AsyncSnapshot snapshot){
+        builder: (BuildContext context, AsyncSnapshot snapshot) {
+          if (snapshot.hasError) {
+            return Center(child: Text(snapshot.error.toString()));
+          }
 
-          if(snapshot.hasError)
-            {
-              return Center(child: Text(snapshot.error.toString()));
-            }
+          if (snapshot.connectionState == ConnectionState.active) {
+            QuerySnapshot querySnapshot = snapshot.data;
+            List<QueryDocumentSnapshot> listQueryDocumentSnapshot =
+                querySnapshot.docs;
 
-          if(snapshot.connectionState==ConnectionState.active)
-            {
-              QuerySnapshot querySnapshot=snapshot.data;
-              List<QueryDocumentSnapshot> listQueryDocumentSnapshot=querySnapshot.docs;
-
-              return ListView.builder(
-                  itemCount: listQueryDocumentSnapshot.length,
-                  itemBuilder: (context,index){
-                QueryDocumentSnapshot document=listQueryDocumentSnapshot[index];
-                return ShoppingListItem(document: document);
-              });
-            }
+            return ListView.builder(
+                itemCount: listQueryDocumentSnapshot.length,
+                itemBuilder: (context, index) {
+                  QueryDocumentSnapshot document =
+                      listQueryDocumentSnapshot[index];
+                  return ShoppingListItem(document: document);
+                });
+          }
 
           return Center(child: CircularProgressIndicator());
         },
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: (){
-          Navigator.of(context).push(MaterialPageRoute(builder: (context)=>AddItem()));
+        onPressed: () {
+          Navigator.of(context)
+              .push(MaterialPageRoute(builder: (context) => AddItem()));
         },
         tooltip: 'Increment',
         child: const Icon(Icons.add),
@@ -146,7 +139,6 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 }
-
 
 class ShoppingListItem extends StatefulWidget {
   const ShoppingListItem({
@@ -167,8 +159,8 @@ class _ShoppingListItemState extends State<ShoppingListItem> {
   Widget build(BuildContext context) {
     return ListTile(
       onTap: () {
-        ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('${widget.document['name']} is tapped')));
+        Navigator.of(context)
+            .push(MaterialPageRoute(builder: (context) => ItemDetails(widget.document.id)));
       },
       title: Text(widget.document['name']),
       subtitle: Text(widget.document['quantity']),
