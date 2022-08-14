@@ -54,11 +54,36 @@ class _AddItemState extends State<AddItem> {
                   return null;
                 },
               ),
+
+
+
+
+
+
+
               ElevatedButton(onPressed: () async{
 
                 if(key.currentState!.validate())
                   {
-                    //Create a Map with the input data
+                      String itemName=_controllerName.text;
+                      String itemQuantity=_controllerQuantity.text;
+
+                      //Create a Map
+                      Map<String,String> dataToStore={
+                        'name':itemName,
+                        'quantity':itemQuantity
+                      };
+
+                      //Get the collection reference, an instance of CollectionReference
+                      //CollectionReference belongs to the package cloud_firestore
+                      CollectionReference ref=FirebaseFirestore.instance.collection('shopping_list');
+                      ref.add(dataToStore);  //Pass a Map containing the data
+
+                      //Add a document with a custom id
+                      /*ref.doc('customid').set(dataToStore);*/
+
+
+                      /*                    //Create a Map with the input data
                     Map<String,String> dataToSave={
                       'name':_controllerName.text,
                       'quantity':_controllerQuantity.text
@@ -74,12 +99,17 @@ class _AddItemState extends State<AddItem> {
                     }catch (error)
                     {
                       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Some error occurred $error')));
-                    }
+                    }*/
                   }
-
-
-
               }, child: Text('Submit'))
+
+
+
+
+
+
+
+
             ],
           ),
         ),

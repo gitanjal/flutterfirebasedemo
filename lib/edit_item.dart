@@ -1,23 +1,33 @@
-import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 
-class AddItem extends StatefulWidget {
-  const AddItem({Key? key}) : super(key: key);
+class EditItem extends StatefulWidget {
+  Map<String,dynamic> shoppingItem;
+  EditItem(this.shoppingItem,{Key? key}) : super(key: key);
 
   @override
-  State<AddItem> createState() => _AddItemState();
+  State<EditItem> createState() => _EditItemState();
 }
 
-class _AddItemState extends State<AddItem> {
-  TextEditingController _controllerName=TextEditingController();
-  TextEditingController _controllerQuantity=TextEditingController();
+class _EditItemState extends State<EditItem> {
+  late TextEditingController _controllerName ;
+  late TextEditingController _controllerQuantity ;
+  GlobalKey<FormState> key = GlobalKey();
 
-  GlobalKey<FormState> key=GlobalKey();
+  initState(){
+    super.initState();
+    _controllerName =
+        TextEditingController(text: widget.shoppingItem['name']);
+    _controllerQuantity =
+        TextEditingController(text: widget.shoppingItem['quantity']);
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Add an item'),),
+      appBar: AppBar(
+        title: Text('Edit an item'),
+      ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Form(
@@ -26,60 +36,46 @@ class _AddItemState extends State<AddItem> {
             children: [
               TextFormField(
                 controller: _controllerName,
-                decoration: InputDecoration(
-                  hintText: 'Enter the name of the item'
-                ),
-                validator: (String? value){
-
-                  if(value==null || value.isEmpty)
-                    {
-                      return 'Please enter the item name';
-                    }
+                decoration:
+                    InputDecoration(hintText: 'Enter the name of the item'),
+                validator: (String? value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter the item name';
+                  }
 
                   return null;
                 },
               ),
               TextFormField(
                 controller: _controllerQuantity,
-                decoration: InputDecoration(
-                    hintText: 'Enter the quantity of the item'
-                ),
-                validator: (String? value){
-
-                  if(value==null || value.isEmpty)
-                  {
+                decoration:
+                    InputDecoration(hintText: 'Enter the quantity of the item'),
+                validator: (String? value) {
+                  if (value == null || value.isEmpty) {
                     return 'Please enter the item quantity';
                   }
 
                   return null;
                 },
               ),
-              ElevatedButton(onPressed: () async{
+              ElevatedButton(
+                  onPressed: () async {
+                    if (key.currentState!.validate()) {
 
-                if(key.currentState!.validate())
-                  {
-                    //Create a Map with the input data
-                    Map<String,String> dataToSave={
-                      'name':_controllerName.text,
-                      'quantity':_controllerQuantity.text
-                    };
+                      //Create a Map with the input data
+                      Map<String,String> dataToUpdate={
+                        'name':_controllerName.text,
+                        'quantity':_controllerQuantity.text,
+                      };
 
-                    //Add the data to the database
-                    CollectionReference reference=FirebaseFirestore.instance.collection('shopping_list');
-                    try {
-                      await reference.add(dataToSave);
+                      //Add the data to the database
+                      CollectionReference collection=FirebaseFirestore.instance.collection('shopping_list');
+                      DocumentReference document=collection.doc(widget.shoppingItem['doc_id']);
+                      document.update(dataToUpdate);
 
-                      if(!mounted) return;
-                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Item added successfully')));
-                    }catch (error)
-                    {
-                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Some error occurred $error')));
                     }
-                  }
-
-
-
-              }, child: Text('Submit'))
+                  },
+                  child: Text('Submit'))
             ],
           ),
         ),
