@@ -1,77 +1,80 @@
-import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
+import 'package:flutterfiredemo/item_details.dart';
+import 'add_item.dart';
 
-class ItemList extends StatefulWidget {
-  const ItemList({Key? key}) : super(key: key);
-
-  @override
-  State<ItemList> createState() => _ItemListState();
-}
-
-class _ItemListState extends State<ItemList> {
-  final CollectionReference _referenceShoppingList =
-      FirebaseFirestore.instance.collection('shopping_list');
-
-  late Stream<QuerySnapshot> _streamData;
-  // late Future<QuerySnapshot> _futureData;
-  // List<Map> _shoppingItems = [];
-
-  @override
-  initState() {
-    super.initState();
-
-    _streamData=_referenceShoppingList.snapshots();
-    // _futureData = _referenceShoppingList.get();
-    /*_futureData.then((value) {
-      setState(() {
-        _shoppingItems = parseData(value);
-      });
-    });*/
+class ItemList extends StatelessWidget {
+  ItemList({Key? key}) : super(key: key) {
+    _stream = _reference.snapshots();
   }
+
+  CollectionReference _reference =
+  FirebaseFirestore.instance.collection('shopping_list');
+
+  //_reference.get()  ---> returns Future<QuerySnapshot>
+  //_reference.snapshots()--> Stream<QuerySnapshot> -- realtime updates
+  late Stream<QuerySnapshot> _stream;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(),
-        body: StreamBuilder<QuerySnapshot>(
-          stream: _streamData,
-          builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+      appBar: AppBar(
+        title: Text('Items'),
+      ),
+      body: StreamBuilder<QuerySnapshot>(
+        stream: _stream,
+        builder: (BuildContext context, AsyncSnapshot snapshot) {
+          //Check error
+          if (snapshot.hasError) {
+            return Center(child: Text('Some error occurred ${snapshot.error}'));
+          }
 
-            if(snapshot.hasError)
-              {
-                return const Center(child: Text('Some error occurred'));
-              }
+          //Check if data arrived
+          if (snapshot.hasData) {
+            //get the data
+            QuerySnapshot querySnapshot = snapshot.data;
+            List<QueryDocumentSnapshot> documents = querySnapshot.docs;
 
-            if(snapshot.hasData)
-              {
-                List<Map> items=parseData(snapshot.data);
-                return buildListView(items);
-              }
+            //Convert the documents to Maps
+            List<Map> items = documents.map((e) =>
+            {
+              'id': e.id,
+              'name': e['name'],
+              'qty': e['quantity']
+            }).toList();
 
-            return Center(child: CircularProgressIndicator());
+            //Display the list
+            return ListView.builder(
+                itemCount: items.length,
+                itemBuilder: (BuildContext context, int index) {
+                  //Get the item at this index
+                  Map thisItem = items[index];
+                  //REturn the widget for the list items
+                  return ListTile(
+                    title: Text('${thisItem['name']}'),
+                    subtitle: Text('${thisItem['qty']}'),
+                    onTap: () {
+                      Navigator.of(context).push(
+                          MaterialPageRoute(
+                              builder: (context) =>
+                                  ItemDetails(thisItem['id'] )));
+                    },
+                  );
+                });
+          }
 
-          },
-        ));
-  }
-
-  List<Map> parseData(QuerySnapshot querySnapshot) {
-    List<QueryDocumentSnapshot> listDocs = querySnapshot.docs;
-    List<Map> listItems = listDocs
-        .map((e) => {'item_name': e['name'], 'item_quantity': e['quantity']})
-        .toList();
-
-    return listItems;
-  }
-
-  ListView buildListView(List<Map<dynamic, dynamic>> shoppingItems) {
-    return ListView.builder(
-        itemCount: shoppingItems.length,
-        itemBuilder: (context, index) {
-          Map thisItem = shoppingItems[index];
-          return ListTile(
-            title: Text(thisItem['item_name']),
-            subtitle: Text(thisItem['item_quantity']),
-          );
-        });
+          //Show loader
+          return Center(child: CircularProgressIndicator());
+        },
+      ), //Display a list // Add a FutureBuilder
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.of(context)
+              .push(MaterialPageRoute(builder: (context) => AddItem()));
+        },
+        tooltip: 'Increment',
+        child: const Icon(Icons.add),
+      ),
+    );
   }
 }

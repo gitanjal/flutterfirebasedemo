@@ -1,26 +1,23 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
-class EditItem extends StatefulWidget {
-  Map<String,dynamic> shoppingItem;
-  EditItem(this.shoppingItem,{Key? key}) : super(key: key);
-
-  @override
-  State<EditItem> createState() => _EditItemState();
-}
-
-class _EditItemState extends State<EditItem> {
-  late TextEditingController _controllerName ;
-  late TextEditingController _controllerQuantity ;
-  GlobalKey<FormState> key = GlobalKey();
-
-  initState(){
-    super.initState();
-    _controllerName =
-        TextEditingController(text: widget.shoppingItem['name']);
+class EditItem extends StatelessWidget {
+  EditItem(this._shoppingItem, {Key? key}) {
+    _controllerName = TextEditingController(text: _shoppingItem['name']);
     _controllerQuantity =
-        TextEditingController(text: widget.shoppingItem['quantity']);
+        TextEditingController(text: _shoppingItem['quantity']);
+
+    _reference = FirebaseFirestore.instance
+        .collection('shopping_list')
+        .doc(_shoppingItem['id']);
   }
+
+  Map _shoppingItem;
+  late DocumentReference _reference;
+
+  late TextEditingController _controllerName;
+  late TextEditingController _controllerQuantity;
+  GlobalKey<FormState> _key = GlobalKey();
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +28,7 @@ class _EditItemState extends State<EditItem> {
       body: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Form(
-          key: key,
+          key: _key,
           child: Column(
             children: [
               TextFormField(
@@ -60,19 +57,18 @@ class _EditItemState extends State<EditItem> {
               ),
               ElevatedButton(
                   onPressed: () async {
-                    if (key.currentState!.validate()) {
+                    if (_key.currentState!.validate()) {
+                      String name = _controllerName.text;
+                      String quantity = _controllerQuantity.text;
 
-                      //Create a Map with the input data
+                      //Create the Map of data
                       Map<String,String> dataToUpdate={
-                        'name':_controllerName.text,
-                        'quantity':_controllerQuantity.text,
+                        'name':name,
+                        'quantity':quantity
                       };
 
-                      //Add the data to the database
-                      CollectionReference collection=FirebaseFirestore.instance.collection('shopping_list');
-                      DocumentReference document=collection.doc(widget.shoppingItem['doc_id']);
-                      document.update(dataToUpdate);
-
+                      //Call update()
+                      _reference.update(dataToUpdate);
                     }
                   },
                   child: Text('Submit'))

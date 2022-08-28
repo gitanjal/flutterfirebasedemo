@@ -14,6 +14,8 @@ class _AddItemState extends State<AddItem> {
 
   GlobalKey<FormState> key=GlobalKey();
 
+  CollectionReference _reference=FirebaseFirestore.instance.collection('shopping_list');
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -68,38 +70,14 @@ class _AddItemState extends State<AddItem> {
                       String itemName=_controllerName.text;
                       String itemQuantity=_controllerQuantity.text;
 
-                      //Create a Map
-                      Map<String,String> dataToStore={
+                      //Create a Map of data
+                      Map<String,String> dataToSend={
                         'name':itemName,
                         'quantity':itemQuantity
                       };
 
-                      //Get the collection reference, an instance of CollectionReference
-                      //CollectionReference belongs to the package cloud_firestore
-                      CollectionReference ref=FirebaseFirestore.instance.collection('shopping_list');
-                      ref.add(dataToStore);  //Pass a Map containing the data
-
-                      //Add a document with a custom id
-                      /*ref.doc('customid').set(dataToStore);*/
-
-
-                      /*                    //Create a Map with the input data
-                    Map<String,String> dataToSave={
-                      'name':_controllerName.text,
-                      'quantity':_controllerQuantity.text
-                    };
-
-                    //Add the data to the database
-                    CollectionReference reference=FirebaseFirestore.instance.collection('shopping_list');
-                    try {
-                      await reference.add(dataToSave);
-
-                      if(!mounted) return;
-                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Item added successfully')));
-                    }catch (error)
-                    {
-                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Some error occurred $error')));
-                    }*/
+                      //Add a new item
+                      _reference.add(dataToSend);
                   }
               }, child: Text('Submit'))
 
