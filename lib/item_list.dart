@@ -36,12 +36,7 @@ class ItemList extends StatelessWidget {
             List<QueryDocumentSnapshot> documents = querySnapshot.docs;
 
             //Convert the documents to Maps
-            List<Map> items = documents.map((e) =>
-            {
-              'id': e.id,
-              'name': e['name'],
-              'qty': e['quantity']
-            }).toList();
+            List<Map> items = documents.map((e) => e.data() as Map).toList();
 
             //Display the list
             return ListView.builder(
@@ -52,12 +47,16 @@ class ItemList extends StatelessWidget {
                   //REturn the widget for the list items
                   return ListTile(
                     title: Text('${thisItem['name']}'),
-                    subtitle: Text('${thisItem['qty']}'),
+                    subtitle: Text('${thisItem['quantity']}'),
+                    leading: Container(
+                      height: 80,
+                      width: 80,
+                      child: thisItem.containsKey('image') ? Image.network(
+                          '${thisItem['image']}') : Container(),
+                    ),
                     onTap: () {
-                      Navigator.of(context).push(
-                          MaterialPageRoute(
-                              builder: (context) =>
-                                  ItemDetails(thisItem['id'] )));
+                      Navigator.of(context).push(MaterialPageRoute(
+                          builder: (context) => ItemDetails(thisItem['id'])));
                     },
                   );
                 });
